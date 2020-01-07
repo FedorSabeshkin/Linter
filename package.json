@@ -1,0 +1,29 @@
+{
+  "name": "shri_tast_2",
+  "version": "1.0.0",
+  "description": "Linter with AST",
+  "main": "index.js",
+  "dependencies": {
+    "acorn": "^7.1.0",
+    "acorn-walk": "^7.0.0",
+    "babel": "^6.23.0",
+    "json-to-ast": "^2.1.0",
+    "walk-ast": "^0.0.2"
+  },
+  "devDependencies": {
+    "eslint": "^6.8.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FedorSabeshkin/shri_task_2.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/FedorSabeshkin/shri_task_2/issues"
+  },
+  "homepage": "https://github.com/FedorSabeshkin/shri_task_2#readme"
+}

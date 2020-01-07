@@ -77,7 +77,9 @@ let fillBlocksArr = (arr, parentLoc) => {
 
             if (item.key.value === "mods") {
                 item.value.children.forEach(function (property) {
-                    outObj.mods = property.value.value;
+                    outObj.mods = {
+                        "size": property.value.value
+                        };
                 });
                 blocks.push(outObj);
             }
@@ -96,16 +98,47 @@ function lint(ast) {
     //console.log(blocks);
     warnTextSize(blocks);
 }
-
+/**
+ * 
+ * @param {*} blocks  массив c объектами вида
+ * 
+ * {
+    block: '<type>',
+    loc: { start: [Object], end: [Object] },
+    mods: '<size>'
+  }
+ * 
+ */
 let warnTextSize = (blocks) => {
+    let errorObj = {
+        "code": "WARNING.TEXT_SIZES_SHOULD_BE_EQUAL",
+        "error": "Тексты в блоке warning должны быть одного размера",
+        "location": {
+            "start": {},
+            "end": {}
+        }
+    };
     let idealSize;
     let firstElem = blocks.find((element, index, array) => {
-        if(element.block === "text"){
+        if (element.block === "text") {
             return element;
         }
         return false;
     });
-    idealSize = firstElem.mods;
+    idealSize = firstElem.mods.size;
+
+    let error = blocks.some((element, index, array) => {
+        if (element.block === "text") {
+            if(element.mods !== idealSize){
+                return true;
+            };
+        }
+     });
+
+    if(error){
+        errorObj.location.start = 
+    }
+
     console.log(idealSize);
 };
 

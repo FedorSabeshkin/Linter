@@ -25,9 +25,9 @@ const json = `{
 let blocks = [];
 
 let walkArr = (arr, parentLoc) => {
-
+    let outObj = {};
     arr.forEach(function (item) {
-        outObj = {};
+        
         if (item.type === "Object"){
             // array
             let arrObjs = item.children;
@@ -38,6 +38,8 @@ let walkArr = (arr, parentLoc) => {
             
 
             if ((item.key.value !== undefined) && (item.key.value === "block")) {
+                outObj = {};
+                outObj.block = item.value.value;
                 //console.log(item.loc);
                 let loc;
                 if(parentLoc === ""){
@@ -60,10 +62,11 @@ let walkArr = (arr, parentLoc) => {
                 item.value.children.forEach(function (property) {
                     outObj.mods = property.value.value;
                 });
+                console.log("outObj: ");
+                console.log(outObj);
+                blocks.push(outObj);
             }
-            console.log("outObj: ");
-            console.log(outObj);
-            blocks.push(outObj);
+            
         }
         
     });

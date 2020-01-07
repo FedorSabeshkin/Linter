@@ -22,28 +22,50 @@ const json = `{
     ]
 }`;
 
-let walkArr = (arr) => {
+let blocks = [];
+
+let walkArr = (arr, parentLoc) => {
 
     arr.forEach(function (item) {
+        outObj = {};
+        if (item.type === "Object"){
+            // array
+            let arrObjs = item.children;
+            walkArr(arrObjs, item.loc);
+            return false;
+        }
+        else if(item.type === "Property"){
+            
 
-        if(item.type === "Property"){
             if ((item.key.value !== undefined) && (item.key.value === "block")) {
-                console.log(item.loc);
-                return false;;
+                //console.log(item.loc);
+                let loc;
+                if(parentLoc === ""){
+                    loc = item.loc;
+                }
+                loc = parentLoc;
+                outObj.loc = loc;
+                delete outObj.loc.start.offset;
+                delete outObj.loc.end.offset;
+                delete outObj.loc.source;
             }
     
             if ((item.key.value !== undefined) && (item.key.value === "content")) {
-                item.value.children
-                walkArr(item.value.children);
+                item.value.children;
+                walkArr(item.value.children, "");
                 return false;
             }
+
+            if ((item.key.value !== undefined) && (item.key.value === "mods")) {
+                item.value.children.forEach(function (property) {
+                    outObj.mods = property.value.value;
+                });
+            }
+            console.log("outObj: ");
+            console.log(outObj);
+            blocks.push(outObj);
         }
-        else if (item.type === "Object"){
-            // array
-            let obj = item.children;
-            walkArr(obj);
-            return false;
-        }
+        
     });
 };
 
@@ -51,7 +73,7 @@ let walkArr = (arr) => {
  * linter function
  */
 function lint(ast) {
-    walkArr(ast.children);
+    walkArr(ast.children, ast.loc);
 }
 
 let ast = parse(json, settings);

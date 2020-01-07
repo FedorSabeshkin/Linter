@@ -136,7 +136,7 @@ let warnTextSize = (blocks) => {
      });
 
     if(error){
-        errorObj.location.start = 
+        errorObj.location.start 
     }
 
     console.log(idealSize);

@@ -9,4 +9,29 @@ globals:
   SharedArrayBuffer: readonly
 parserOptions:
   ecmaVersion: 2018
-rules: {}
+rules:
+  no-console: off
+  no-restricted-syntax:
+    - warn
+    - selector: CallExpression[callee.object.name='console'][callee.property.name!=/^(warn|error|trace|log)$/]
+      message: "Unexpected property on console object was called"
+  max-len:
+    - warn
+    - code: 160
+      tabWidth: 4
+      ignoreComments: false
+      ignoreTrailingComments: false
+  no-unused-vars: off
+  no-process-env: off
+  indent:
+    - warn
+    - 4
+  linebreak-style:
+    - off
+    - windows
+  quotes:
+    - error
+    - double
+  semi:
+    - error
+    - always

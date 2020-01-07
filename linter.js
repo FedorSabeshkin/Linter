@@ -1,4 +1,3 @@
-let acorn = require("acorn");
 const parse = require("json-to-ast");
 const walk = require("acorn-walk");
 const util = require("util");
@@ -11,13 +10,18 @@ const settings = {
 /**
  * sizes
  */
-const sizes = ["m", "s", "l", "xl"];
+const sizes = {
+    "m": 1,
+    "s": 2,
+    "l": 3,
+    "xl": 4
+};
 
 const json = `{
     "block": "warning",
     "content": [
-        { "block": "placeholder", "mods": { "size": "m" } },
-        { "block": "button", "mods": { "size": "m" } }
+        { "block": "text", "mods": { "size": "l" } },
+        { "block": "text", "mods": { "size": "m" } }
     ]
 }`;
 
@@ -89,12 +93,29 @@ let fillBlocksArr = (arr, parentLoc) => {
  */
 function lint(ast) {
     fillBlocksArr(ast.children, ast.loc);
-    console.log(blocks);
+    //console.log(blocks);
+    warnTextSize(blocks);
 }
 
-// let  = (arr, parentLoc) => {
+let warnTextSize = (blocks) => {
+    let idealSize;
+    let firstElem = blocks.find((element, index, array) => {
+        if(element.block === "text"){
+            return element;
+        }
+        return false;
+    });
+    idealSize = firstElem.mods;
+    console.log(idealSize);
+};
 
-// }
+// let warning = (blocks) => {
+//     return {
+//         textSize = (blocks)=>{
+//             console.log("from func");
+//         }
+//     }; 
+// };
 
 let ast = parse(json, settings);
 

@@ -35,9 +35,7 @@ let walkArr = (arr, parentLoc) => {
             return false;
         }
         else if(item.type === "Property"){
-            
-
-            if ((item.key.value !== undefined) && (item.key.value === "block")) {
+            if (item.key.value === "block") {
                 outObj = {};
                 outObj.block = item.value.value;
                 //console.log(item.loc);
@@ -50,26 +48,30 @@ let walkArr = (arr, parentLoc) => {
                 delete outObj.loc.start.offset;
                 delete outObj.loc.end.offset;
                 delete outObj.loc.source;
+                if(item.value.value === "warning"){
+                    blocks.push(outObj);
+                }
             }
     
-            if ((item.key.value !== undefined) && (item.key.value === "content")) {
+            if (item.key.value === "content") {
                 item.value.children;
                 walkArr(item.value.children, "");
                 return false;
             }
 
-            if ((item.key.value !== undefined) && (item.key.value === "mods")) {
+            if (item.key.value === "mods") {
                 item.value.children.forEach(function (property) {
                     outObj.mods = property.value.value;
                 });
-                console.log("outObj: ");
-                console.log(outObj);
                 blocks.push(outObj);
             }
             
         }
         
     });
+    
+    console.log("blocks: ");
+    console.log(blocks);
 };
 
 /**

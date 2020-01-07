@@ -1,53 +1,42 @@
+const JsonAsty = require("json-asty")
 
-let acorn = require("acorn");
-const parse = require('json-to-ast');
-const walk = require("acorn-walk");
-const util = require('util');
+/*  the JSON input  */
+let json = `{
+    "foo": {
+        "bar": true,
+        "baz": 42.0,
+        "quux": [ "test1\\"test2", "test3", 7, true ]
+    }
+}`
+console.log(`JSON (old):\n${json}`)
 
-const settings = {
-    // Appends location information. Default is <true>
-    loc: true
-};
+/*  parse JSON into AST  */
+let ast = JsonAsty.parse(json)
+console.log(`AST Dump (all):\n${JsonAsty.dump(ast, { colors: true })}`)
 
-
-const json = `{
-    "block": "warning",
-    "content": [
-        { "block": "placeholder", "mods": { "size": "m" } },
-        { "block": "button", "mods": { "size": "m" } }
+/*  the AST query  */
+let query = `
+    .// member [
+        ..// member [
+            / string [ pos() == 1 && @value == "foo" ]
+        ]
+        &&
+        / string [ pos() == 1 && @value == "baz" ]
     ]
-}`;
-/**
- * linter function
- */
-function lint() {
-    let ast = parse(json, settings);
-    
-    let walkArr = (arr) => {
-        arr.forEach(function (item) {
-            try{
-                if (( item.key.value !== undefined ) && (item.key.value === "block")) {
-                    console.log(item.loc);
-                }
-            }
-            catch(err){
-                console.error(err);
-            }
-            
-            if (( item.children !== undefined ) && item.children) {
-                walkArr(item.children);
-            };
-            if (( item.value.children !== undefined ) && item.value.children) {
-                walkArr(item.value.children);
-            }
-        });
-    };
+        / * [ pos() == 2 ]
+`
+console.log(`AST Query:\n${query}`)
 
-    walkArr(ast.children);
+/*  query AST node  */
+let nodes = ast.query(query)
+let node = nodes[0]
+console.log(`AST Dump (sub, old):\n${node.dump()}`)
 
-}
+/*  manipulate AST node  */
+let nodeNew = node.create("string").set({ value: "TEST" })
+node.parent().del(node).add(nodeNew)
+console.log(`AST Dump (sub, new):\n${node.dump()}`)
 
-lint();
-
-
-
+/*  unparse AST into JSON  */
+let jsonNew = JsonAsty.unparse(ast)
+console.log(`JSON (new):\n${jsonNew}`)

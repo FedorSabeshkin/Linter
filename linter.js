@@ -25,6 +25,35 @@ const json = `{
     ]
 }`;
 
+const jsonTest = `{
+    "block": "header",
+    "content": {
+        "block": "header",
+        "elem": "content",
+        "content": [
+            {
+                "block": "header",
+                "elem": "logo"
+            },
+            [
+                {
+                    "block": "onoffswitch",
+                    "mods": {
+                        "checked": true,
+                        "size": "l"
+                    },
+                    "content": [
+                        {
+                            "block": "onoffswitch",
+                            "elem": "button"
+                        }
+                    ]
+                }
+            ]
+        ]
+    }
+  }`;
+
 let blocks = [];
 
 /**
@@ -40,54 +69,108 @@ let blocks = [];
   },
  */
 
-let fillBlocksArr = (arr, parentLoc) => {
+let fillBlocksArr = (children, parentLoc) => {
     let outObj = {};
-    arr.forEach(function (item) {
 
-        if (item.type === "Object") {
+    /*
+        1. проверять Array.isArray(arr) 
+        иначе метод перебора по объекту
+
+        2. вынести switch в отдельный метод
+            сначала внутри этой функции
+            потом решить проблему с глобальной переменной и вынести в отдельный,
+            например, просто передавать обьект при вызове функции
+    */
+
+
+    if (Array.isArray(children)) {
+        children.forEach(function (item) {
+            checker(item, parentLoc, outObj);
+        });
+    }
+    else if (typeof children === "object") {
+        for (let item in children) {
+            checker(item, parentLoc, outObj);
+        }
+    }
+};
+
+let checker = (item, parentLoc, outObj) => {
+
+    switch (item.type) {
+        case "Object": {
             // array
             let arrObjs = item.children;
-            fillBlocksArr(arrObjs, item.loc);
-            return false;
+            if (Array.isArray(item.children)) {
+                fillBlocksArr(arrObjs, item.loc);
+                break;
+            } else {
+                item = item.children;
+            }
+
         }
-        else if (item.type === "Property") {
-            if (item.key.value === "block") {
-                outObj = {};
-                outObj.block = item.value.value;
-                //console.log(item.loc);
-                let loc;
-                if (parentLoc === "") {
-                    loc = item.loc;
+        case "Array": {
+            fillBlocksArr(item.children, "");
+            break;
+        }
+        case "Property": {
+            switch (item.key.value) {
+                case "block": {
+                    outObj = {};
+                    outObj.block = item.value.value;
+
+                    let loc;
+                    if (parentLoc === "") {
+                        parentLoc = item.loc;
+                    }
+                    loc = parentLoc;
+                    outObj.loc = loc;
+                    delete outObj.loc.start.offset;
+                    delete outObj.loc.end.offset;
+                    delete outObj.loc.source;
+                    if (item.value.value === "warning") {
+                        blocks.push(outObj);
+                    }
+                    else {
+                        blocks.push(outObj);
+                        break;
+                    }
+
                 }
-                loc = parentLoc;
-                outObj.loc = loc;
-                delete outObj.loc.start.offset;
-                delete outObj.loc.end.offset;
-                delete outObj.loc.source;
-                if (item.value.value === "warning") {
+                /**
+                 * if "block" have "mods", then we will add their to @param outObj
+                 *  */
+                case "mods": {
+                    outObj.mods = {};
+                    let children = item.value.children;
+                    if (Array.isArray(children)) {
+                        /**
+                         * ?????
+                         * Что-то не то
+                         * !!!!!
+                         * Если это массив, то он должен содержать объекты и алгоритм пробегания будет иным
+                         */
+                        children.forEach(function (property) {
+                            outObj.mods[property.key.value] = property.value.value;
+                        });
+                    }
+                    else if (typeof children === "object") {
+                        for (let property in children) {
+                            outObj.mods[property.key.value] = property.value.value;
+                        }
+                    }
+
                     blocks.push(outObj);
                 }
-            }
+                case "content": {
+                    item.value.children;
+                    fillBlocksArr(item.value.children, "");
+                    break;
+                }
 
-            if (item.key.value === "content") {
-                item.value.children;
-                fillBlocksArr(item.value.children, "");
-                return false;
             }
-
-            if (item.key.value === "mods") {
-                item.value.children.forEach(function (property) {
-                    outObj.mods = {
-                        "size": property.value.value
-                        };
-                });
-                blocks.push(outObj);
-            }
-
         }
-
-    });
-
+    }
 };
 
 /**
@@ -95,8 +178,9 @@ let fillBlocksArr = (arr, parentLoc) => {
  */
 function lint(ast) {
     fillBlocksArr(ast.children, ast.loc);
-    //console.log(blocks);
-    warnTextSize(blocks);
+    // console.log(blocks);
+    console.log(util.inspect(blocks, false, null, true /* enable colors */))
+    //warnTextSize(blocks);
 }
 /**
  * 
@@ -129,28 +213,22 @@ let warnTextSize = (blocks) => {
 
     let error = blocks.some((element, index, array) => {
         if (element.block === "text") {
-            if(element.mods !== idealSize){
+            if (element.mods !== idealSize) {
                 return true;
-            };
+            }
         }
-     });
+    });
 
-    if(error){
-        errorObj.location.start 
+    if (error) {
+        // позиция родительского блока
+        errorObj.location.start;
     }
 
     console.log(idealSize);
 };
 
-// let warning = (blocks) => {
-//     return {
-//         textSize = (blocks)=>{
-//             console.log("from func");
-//         }
-//     }; 
-// };
 
-let ast = parse(json, settings);
+let ast = parse(jsonTest, settings);
 
 lint(ast);
 

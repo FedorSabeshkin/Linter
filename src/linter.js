@@ -164,7 +164,7 @@ let checker = (item, parentLoc, outObj) => {
                 }
                 case "content": {
                     item.value.children;
-                    fillBlocksArr(item.value.children, "");
+                    fillBlocksArr(item.value.children, item.value.loc);
                     break;
                 }
 

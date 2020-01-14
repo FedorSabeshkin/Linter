@@ -1,6 +1,6 @@
 const parse = require("json-to-ast");
-const walk = require("acorn-walk");
 const util = require("util");
+const checkArrBlock = require("./checkArrBlock.js");
 
 const settings = {
     // Appends location information. Default is <true>
@@ -16,6 +16,15 @@ const sizes = {
     "l": 3,
     "xl": 4
 };
+
+const markedJson = [{
+    "block": "warning",
+    "content": [
+        { "block": "text", "mods": { "size": "l" }, "loc": { "start": { "line": 4, "column": 9 }, "end": { "line": 4, "column": 53 } }},
+        { "block": "text", "mods": { "size": "m" }, "loc": { "start": { "line": 5, "column": 9 }, "end": { "line": 5, "column": 53 } }}
+    ],
+	"loc": { "start": { "line": 1, "column": 1 }, "end": { "line": 7, "column": 2 } }
+}];
 
 const json = `{
     "block": "warning",
@@ -56,6 +65,8 @@ const jsonTest = `{
 
 let blocks = [];
 
+let errors = [];
+
 /**
  * 
  * @param {*массив "children" элемента в AST} arr  
@@ -71,17 +82,6 @@ let blocks = [];
 
 let fillBlocksArr = (children, parentLoc) => {
     let outObj = {};
-
-    /*
-        1. проверять Array.isArray(arr) 
-        иначе метод перебора по объекту
-
-        2. вынести switch в отдельный метод
-            сначала внутри этой функции
-            потом решить проблему с глобальной переменной и вынести в отдельный,
-            например, просто передавать обьект при вызове функции
-    */
-
 
     if (Array.isArray(children)) {
         children.forEach(function (item) {
@@ -107,7 +107,6 @@ let checker = (item, parentLoc, outObj) => {
             } else {
                 item = item.children;
             }
-
         }
         case "Array": {
             fillBlocksArr(item.children, "");
@@ -174,15 +173,6 @@ let checker = (item, parentLoc, outObj) => {
 };
 
 /**
- * linter function
- */
-function lint(ast) {
-    fillBlocksArr(ast.children, ast.loc);
-    // console.log(blocks);
-    console.log(util.inspect(blocks, false, null, true /* enable colors */))
-    //warnTextSize(blocks);
-}
-/**
  * 
  * @param {*} blocks  массив c объектами вида
  * 
@@ -194,6 +184,9 @@ function lint(ast) {
  * 
  */
 let warnTextSize = (blocks) => {
+
+    checkArrBlock(blocks);
+
     let errorObj = {
         "code": "WARNING.TEXT_SIZES_SHOULD_BE_EQUAL",
         "error": "Тексты в блоке warning должны быть одного размера",
@@ -203,13 +196,19 @@ let warnTextSize = (blocks) => {
         }
     };
     let idealSize;
-    let firstElem = blocks.find((element, index, array) => {
+    let firstElem = false;
+    firstElem = blocks.find((element, index, array) => {
         if (element.block === "text") {
             return element;
         }
         return false;
     });
-    idealSize = firstElem.mods.size;
+    if (firstElem){
+        idealSize = firstElem.mods.size;
+    }
+    else{
+        return false;
+    }
 
     let error = blocks.some((element, index, array) => {
         if (element.block === "text") {
@@ -221,12 +220,23 @@ let warnTextSize = (blocks) => {
 
     if (error) {
         // позиция родительского блока
-        errorObj.location.start;
+        //errorObj.location.
     }
 
     console.log(idealSize);
 };
 
+
+/**
+ * linter function
+ */
+function lint(ast) {
+    // fillBlocksArr(ast.children, ast.loc);
+    // console.log(blocks);
+    blocks = markedJson;
+    console.log(util.inspect(blocks, false, null, true /* enable colors */));
+    warnTextSize(blocks);
+}
 
 let ast = parse(jsonTest, settings);
 

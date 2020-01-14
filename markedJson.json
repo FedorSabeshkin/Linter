@@ -1,0 +1,8 @@
+{
+    "block": "warning",
+    "content": [
+        { "block": "text", "mods": { "size": "l" }, "loc": { "start": { "line": 4, "column": 9 }, "end": { "line": 4, "column": 53 } }},
+        { "block": "text", "mods": { "size": "m" }, "loc": { "start": { "line": 5, "column": 9 }, "end": { "line": 5, "column": 53 } }}
+    ],
+	"loc": { "start": { "line": 1, "column": 1 }, "end": { "line": 7, "column": 2 } }
+}

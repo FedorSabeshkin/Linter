@@ -1,6 +1,6 @@
 const parse = require("json-to-ast");
 const util = require("util");
-const checkArrBlock = require("./checkArrBlock.js");
+const ruleWarning = require("./ruleWarning.js");
 
 const settings = {
     // Appends location information. Default is <true>
@@ -33,6 +33,48 @@ const json = `{
         { "block": "text", "mods": { "size": "m" } }
     ]
 }`;
+
+const multiJson = [{
+    "block": "header",
+    "content": {
+        "block": "header",
+        "elem": "content",
+        "loc": { "start": { "line": 0, "column": 0 }, "end": { "line": 0, "column": 0 } },
+        "content": [
+            {
+                "block": "header",
+                "elem": "logo",
+                "loc": { "start": { "line": 0, "column": 0 }, "end": { "line": 0, "column": 0 } }
+            },
+            [
+                {
+                    "block": "onoffswitch",
+                    "mods": {
+                        "checked": true,
+                        "size": "l",
+                        "loc": { "start": { "line": 0, "column": 0 }, "end": { "line": 0, "column": 0 } }
+                    },
+                    "loc": { "start": { "line": 0, "column": 0 }, "end": { "line": 0, "column": 0 } },
+                    "content": [
+                        {
+                            "block": "onoffswitch",
+                            "elem": "button",
+                            "loc": { "start": { "line": 0, "column": 0 }, "end": { "line": 0, "column": 0 } }
+                        },
+                        {
+                            "block": "warning",
+                            "content": [
+                                { "block": "text", "mods": { "size": "l" }, "loc": { "start": { "line": 4, "column": 9 }, "end": { "line": 4, "column": 53 } }},
+                                { "block": "text", "mods": { "size": "m" }, "loc": { "start": { "line": 5, "column": 9 }, "end": { "line": 5, "column": 53 } }}
+                            ],
+                            "loc": { "start": { "line": 1, "column": 1 }, "end": { "line": 7, "column": 2 } }
+                        }
+                    ]
+                }
+            ]
+        ]
+    }
+  }];
 
 const jsonTest = `{
     "block": "header",
@@ -185,7 +227,7 @@ let checker = (item, parentLoc, outObj) => {
  */
 let warnTextSize = (blocks) => {
     let errors = [];
-    errors = checkArrBlock(blocks);
+    errors = ruleWarning.checkArrBlock(blocks);
     console.log("////////////////////");
     console.log("errors");
     console.log(util.inspect(errors, false, null, true /* enable colors */));
@@ -198,7 +240,8 @@ let warnTextSize = (blocks) => {
 function lint(ast) {
     // fillBlocksArr(ast.children, ast.loc);
     // console.log(blocks);
-    blocks = markedJson;
+    //blocks = markedJson;
+    blocks = multiJson;
     // console.log(util.inspect(blocks, false, null, true /* enable colors */));
     warnTextSize(blocks);
 }

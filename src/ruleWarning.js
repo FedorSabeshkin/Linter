@@ -1,7 +1,29 @@
 /* eslint-disable no-empty */
 /* eslint-disable no-undef */
+//const equalWarnTextSize = require("./equalWarnTextSize");
+const util = require("util");
 
-const checkArrBlock = require("./checkArrBlock");
+const checkArrBlock = (blocks = [{}], outWarningLoc = "") => {
+    let errors = [];
+    let newErrors = [];
+
+
+    blocks.forEach(function (item) {
+        console.log("////////////////////");
+        console.log("block");
+        console.log(util.inspect(item, false, null, true /* enable colors */));
+        if (Array.isArray(item)) {
+            checkArrBlock(item);
+        }
+        else {
+            newErrors = equalWarnTextSize(item);
+            errors = errors.concat(newErrors);
+        }
+
+    });
+
+    return errors;
+};
 
 /**
  * 
@@ -66,11 +88,11 @@ const equalWarnTextSize = (block, outWarningLoc = "") => {
 
 
                 childrens.forEach(function (item) {
-                    
+
                     if (Array.isArray(item)) {
                         checkArrBlock(item);
                     }
-                    else {
+                    else if (typeof childrens === "object") {
                         newErrors = equalWarnTextSize(item);
                         errors = errors.concat(newErrors);
                     }
@@ -82,6 +104,7 @@ const equalWarnTextSize = (block, outWarningLoc = "") => {
                     errorObj.location = outWarningLoc;
                     errors.push(errorObj);
                 }
+                console.log(util.inspect(errors, false, null, true /* enable colors */));
                 return errors;
 
             }
@@ -89,25 +112,28 @@ const equalWarnTextSize = (block, outWarningLoc = "") => {
                 return false;
             }
         }
+
     }
     else {
         let childrens = block.content;
-        if (Array.isArray(childrens)) {
-            let errors = [];
-            let newErrors = [];
 
-            childrens.forEach(function (item) {
-                newErrors = equalWarnTextSize(item);
-                errors = errors.concat(newErrors);
-            });
+        if (Array.isArray(childrens)) {
+            errors = checkArrBlock(childrens);
             return errors;
         }
-        else {
-            equalWarnTextSize(childrens);
+        else if (typeof childrens === "object") {
+            newErrors = equalWarnTextSize(childrens);
+            errors = errors.concat(newErrors);
         }
+
         return false;
+
     }
 };
 
-module.exports = equalWarnTextSize;
+// checkArrBlock();
+
+module.exports.checkArrBlock = checkArrBlock;
+
+module.exports.equalWarnTextSize = equalWarnTextSize;
 

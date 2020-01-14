@@ -184,46 +184,11 @@ let checker = (item, parentLoc, outObj) => {
  * 
  */
 let warnTextSize = (blocks) => {
-
-    checkArrBlock(blocks);
-
-    let errorObj = {
-        "code": "WARNING.TEXT_SIZES_SHOULD_BE_EQUAL",
-        "error": "Тексты в блоке warning должны быть одного размера",
-        "location": {
-            "start": {},
-            "end": {}
-        }
-    };
-    let idealSize;
-    let firstElem = false;
-    firstElem = blocks.find((element, index, array) => {
-        if (element.block === "text") {
-            return element;
-        }
-        return false;
-    });
-    if (firstElem){
-        idealSize = firstElem.mods.size;
-    }
-    else{
-        return false;
-    }
-
-    let error = blocks.some((element, index, array) => {
-        if (element.block === "text") {
-            if (element.mods !== idealSize) {
-                return true;
-            }
-        }
-    });
-
-    if (error) {
-        // позиция родительского блока
-        //errorObj.location.
-    }
-
-    console.log(idealSize);
+    let errors = [];
+    errors = checkArrBlock(blocks);
+    console.log("////////////////////");
+    console.log("errors");
+    console.log(util.inspect(errors, false, null, true /* enable colors */));
 };
 
 
@@ -234,7 +199,7 @@ function lint(ast) {
     // fillBlocksArr(ast.children, ast.loc);
     // console.log(blocks);
     blocks = markedJson;
-    console.log(util.inspect(blocks, false, null, true /* enable colors */));
+    // console.log(util.inspect(blocks, false, null, true /* enable colors */));
     warnTextSize(blocks);
 }
 

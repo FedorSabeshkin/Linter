@@ -1,13 +1,15 @@
 /* eslint-disable no-empty */
 /* eslint-disable no-undef */
-const checkObjBlock = require("./checkObjBlock");
+const equalWarnTextSize = require("./equalWarnTextSize");
 
 const checkArrBlock = (blocks=[{}], outWarningLoc = "") => {
-    console.log(" 1 all ok");
+    let errors = [];
+    let newErrors = [];
     blocks.forEach(function (item) {
-        checkObjBlock(item);
-        console.log("all ok");
+        newErrors = equalWarnTextSize(item);
+        errors = errors.concat(newErrors);
     });
+    return errors;
 };
 
 // checkArrBlock();

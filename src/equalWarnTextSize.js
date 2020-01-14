@@ -1,8 +1,16 @@
 /* eslint-disable no-empty */
 /* eslint-disable no-undef */
 
-
-const checkObjBlock = (block, outWarningLoc = "") => {
+/**
+ * 
+ * @param {*} block 
+ * @param {*} outWarningLoc 
+ * 
+ * method for cheking rule:
+ * Все тексты (блоки text) в блоке warning должны быть одного размера, то есть c одинаковым значением модификатора size, и этот размер должен быть определен. 
+ * Размер первого из таких элементов в форме будем считать эталонным.
+ */
+const equalWarnTextSize = (block, outWarningLoc = "") => {
     let errors = [];
     if (block.block === "warning") {
         if (outWarningLoc === "") {
@@ -13,7 +21,14 @@ const checkObjBlock = (block, outWarningLoc = "") => {
         }
         // проверка первого условия для блока warning
         if (block.content) {
-            let errorObj = {};
+            let errorObj = {
+                "code": "WARNING.TEXT_SIZES_SHOULD_BE_EQUAL",
+                "error": "Тексты в блоке warning должны быть одного размера",
+                "location": {
+                    "start": {},
+                    "end": {}
+                }
+            };
             let childrens = block.content;
             if (Array.isArray(childrens)) {
                 // find first "text" elem
@@ -44,6 +59,7 @@ const checkObjBlock = (block, outWarningLoc = "") => {
                 if (error) {
                     errorObj.location = outWarningLoc;
                     errors.push(errorObj);
+                    return errors;
                 }
             }
             else if (typeof childrens === "object") {
@@ -53,5 +69,5 @@ const checkObjBlock = (block, outWarningLoc = "") => {
     }
 };
 
-module.exports = checkObjBlock;
+module.exports = equalWarnTextSize;
 

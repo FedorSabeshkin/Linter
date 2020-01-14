@@ -227,7 +227,13 @@ let checker = (item, parentLoc, outObj) => {
  */
 let warnTextSize = (blocks) => {
     let errors = [];
-    errors = ruleWarning.checkArrBlock(blocks);
+    let newErrors = [];
+    errors = ruleWarning.checkArrBlock(blocks, "", errors);
+    // console.log("newErrors.length", newErrors.length);
+    // if(newErrors.length > 0){
+    //     console.log("true");
+    //     errors.concat(newErrors);
+    // }
     console.log("////////////////////");
     console.log("errors");
     console.log(util.inspect(errors, false, null, true /* enable colors */));

@@ -1,6 +1,8 @@
 const parse = require("json-to-ast");
 const util = require("util");
 const ruleWarning = require("./ruleWarning.js");
+const parseAstObject = require("./plain/parseAstObject.js");
+const SEVERAL_H1 = require("./rules/headers/SEVERAL_H1.js");
 
 const settings = {
     // Appends location information. Default is <true>
@@ -17,6 +19,16 @@ const sizes = {
     "xl": 4
 };
 
+const brokenWarning = `
+{
+    "block": "warning",
+    "content": [
+        { "block": "text", "mods": { "size": "l" } },
+        { "block": "text", "mods": { "size": "m" } }
+    ]
+}
+`;
+
 const markedJson = [{
     "block": "warning",
     "content": [
@@ -26,13 +38,13 @@ const markedJson = [{
 	"loc": { "start": { "line": 1, "column": 1 }, "end": { "line": 7, "column": 2 } }
 }];
 
-const json = `{
-    "block": "warning",
-    "content": [
-        { "block": "text", "mods": { "size": "l" } },
-        { "block": "text", "mods": { "size": "m" } }
-    ]
-}`;
+// const json = `{
+//     "block": "warning",
+//     "content": [
+//         { "block": "text", "mods": { "size": "l" } },
+//         { "block": "text", "mods": { "size": "m" } }
+//     ]
+// }`;
 
 const multiJson = [{
     "block": "header",
@@ -227,13 +239,8 @@ let checker = (item, parentLoc, outObj) => {
  */
 let warnTextSize = (blocks) => {
     let errors = [];
-    let newErrors = [];
-    errors = ruleWarning.checkArrBlock(blocks, "", errors);
-    // console.log("newErrors.length", newErrors.length);
-    // if(newErrors.length > 0){
-    //     console.log("true");
-    //     errors.concat(newErrors);
-    // }
+    // errors = ruleWarning.checkArrBlock(blocks, "", errors);
+    errors = SEVERAL_H1.checkObj();
     console.log("////////////////////");
     console.log("errors");
     console.log(util.inspect(errors, false, null, true /* enable colors */));
@@ -243,18 +250,41 @@ let warnTextSize = (blocks) => {
 /**
  * linter function
  */
-function lint(ast) {
-    // fillBlocksArr(ast.children, ast.loc);
-    // console.log(blocks);
-    //blocks = markedJson;
-    blocks = multiJson;
-    // console.log(util.inspect(blocks, false, null, true /* enable colors */));
-    warnTextSize(blocks);
+function lint(json) {
+    blocks = json;
+    // warnTextSize(blocks);
+    checkH1(blocks);
 }
 
-let ast = parse(jsonTest, settings);
+let checkH1 = (blocks) => {
+    let errors = [];
+    errors.push(SEVERAL_H1.checkObj(blocks));
+    console.log("////////////////////");
+    console.log("errors");
+    console.log(util.inspect(errors, false, null, true /* enable colors */));
+};
 
-lint(ast);
+let wrongH1 =`
+{
+    "block": "warning",
+    "content": [
+        {
+            "block": "text",
+            "mods": { "type": "h1" }
+        },
+        {
+            "block": "text",
+            "mods": { "type": "h1" }
+        }
+    ]
+}`;
+
+//let ast = parse(brokenWarning, settings);
+let ast = parse(wrongH1, settings);
+let jsonAndLoc;
+// add location field
+jsonAndLoc = parseAstObject.parseObj(ast);
+lint(jsonAndLoc);
 
 
 

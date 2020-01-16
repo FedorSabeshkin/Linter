@@ -1,80 +1,66 @@
 const parseAstObject = require("./parseAstObject");
+const parseJson = require("json-to-ast");
 const util = require("util");
 
 const test = (astJson) => {
 
-    console.log(util.inspect(parseAstObject.parse(astJson), false, null, true /* enable colors */));
+  console.log(util.inspect(parseAstObject.parseObj(astJson), false, null, true /* enable colors */), `\n`);
 };
 
-const AstJson = {
-    "type": "Object",
-    "children": [
-      {
-        "type": "Property",
-        "key": {
-          "type": "Identifier",
-          "value": "block",
-          "raw": "\"block\"",
-          "loc": {
-            "start": {
-              "line": 2,
-              "column": 5,
-              "offset": 6
-            },
-            "end": {
-              "line": 2,
-              "column": 12,
-              "offset": 13
-            },
-            "source": null
-          }
-        },
-        "value": {
-          "type": "Literal",
-          "value": "header",
-          "raw": "\"header\"",
-          "loc": {
-            "start": {
-              "line": 2,
-              "column": 14,
-              "offset": 15
-            },
-            "end": {
-              "line": 2,
-              "column": 22,
-              "offset": 23
-            },
-            "source": null
-          }
-        },
-        "loc": {
-          "start": {
-            "line": 2,
-            "column": 5,
-            "offset": 6
-          },
-          "end": {
-            "line": 2,
-            "column": 22,
-            "offset": 23
-          },
-          "source": null
-        }
-      }
-    ],
-    "loc": {
-      "start": {
-        "line": 1,
-        "column": 1,
-        "offset": 0
-      },
-      "end": {
-        "line": 3,
-        "column": 2,
-        "offset": 25
-      },
-      "source": null
-    }
-  };
+let arrJson = `{
+  "key1": [true, false, null]
+}`;
 
-test(AstJson);
+let astJson = `{
+  "block": "warning"
+}`;
+
+let astJsonDouble = `{
+  "block": "warning",
+  "mods": {
+    "checked": {
+                "checked": "inner",
+                "size": "m"
+              },
+    "size": "l"
+  }
+}`;
+
+let difficultObj = `{
+  "block": "header",
+  "content": {
+      "block": "header",
+      "elem": "content",
+      "content": [
+          {
+              "block": "header",
+              "elem": "logo"
+          },
+          [
+              {
+                  "block": "onoffswitch",
+                  "mods": {
+                      "checked": true,
+                      "size": "l"
+                  },
+                  "content": [
+                      {
+                          "block": "onoffswitch",
+                          "elem": "button"
+                      }
+                  ]
+              }
+          ]
+      ]
+  }
+}`;
+
+// astJson = parseJson(astJson);
+// arrJson = parseJson(arrJson);
+// astJsonDouble = parseJson(astJsonDouble);
+difficultObj = parseJson(difficultObj);
+
+// test(astJson);
+// test(arrJson);
+// test(astJsonDouble);
+test(difficultObj);
